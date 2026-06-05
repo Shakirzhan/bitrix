@@ -69,15 +69,16 @@ $componentId = $this->getComponent()->getName() . '_' . rand(10000, 99999);
     (function() {
         const mapId = '<?php echo addslashes($componentId); ?>';
         const mapContainer = 'map-' + mapId;
-        const markers = <?php echo $this->arResult['MARKERS']; ?>;
+        const markers = <?php echo isset($this->arResult['MARKERS']) && !empty($this->arResult['MARKERS']) ? $this->arResult['MARKERS'] : '[]'; ?>;
         const mapCenter = [<?php echo $this->arResult['MAP_CENTER']['lat']; ?>, <?php echo $this->arResult['MAP_CENTER']['lon']; ?>];
         const mapZoom = <?php echo $this->arResult['MAP_ZOOM']; ?>;
         const apiKey = '<?php echo addslashes($this->arResult['API_KEY']); ?>';
 
-        // Функция для инициализации карты
+        // Функция для инициализации карты Яндекса
         function initYandexMap() {
             if (typeof ymaps === 'undefined') {
                 console.error('Яндекс.Карты API не загружена');
+                loadOpenStreetMap();
                 return;
             }
 
@@ -114,9 +115,6 @@ $componentId = $this->getComponent()->getName() . '_' . rand(10000, 99999);
                         map.setBounds(collection.getBounds());
                     }
                 }
-
-                // Добавляем кастомный контрол поиска (опционально)
-                addSearchControl(map);
             });
         }
 
@@ -153,20 +151,15 @@ $componentId = $this->getComponent()->getName() . '_' . rand(10000, 99999);
             });
         }
 
-        function addSearchControl(map) {
-            // Опциональный поиск (требует дополнительного API)
-            // Можно добавить при необходимости
-        }
-
         // Загружаем API Яндекс.Карт
         if (apiKey) {
             const script = document.createElement('script');
             script.src = 'https://api-maps.yandex.ru/2.1/?apikey=' + apiKey + '&lang=ru_RU';
             script.onload = initYandexMap;
+            script.onerror = loadOpenStreetMap;
             document.head.appendChild(script);
         } else {
-            console.warn('API ключ Яндекс.Карт не указан');
-            // Используем бесплатную OpenStreetMap как fallback
+            console.warn('API ключ Яндекс.Карт не указан, используется OpenStreetMap');
             loadOpenStreetMap();
         }
 
@@ -196,6 +189,13 @@ $componentId = $this->getComponent()->getName() . '_' . rand(10000, 99999);
                             .addTo(map)
                             .bindPopup(popup);
                     });
+
+                    if (markers.length > 1) {
+                        const group = new L.featureGroup(
+                            markers.map(m => L.marker([m.lat, m.lon]))
+                        );
+                        map.fitBounds(group.getBounds());
+                    }
                 }
             };
             document.head.appendChild(leafletJs);
