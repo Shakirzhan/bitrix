@@ -8,20 +8,20 @@ class MapYandexComponent extends CBitrixComponent
 {
     public function executeComponent()
     {
-        // Параметры по умолчанию
-        $this->arParams['MAP_TYPE'] = $this->arParams['MAP_TYPE'] ?? 'iblock'; // iblock, json, file, simple
-        $this->arParams['API_KEY'] = $this->arParams['API_KEY'] ?? '';
-        $this->arParams['MAP_CENTER_LAT'] = $this->arParams['MAP_CENTER_LAT'] ?? '55.7558';
-        $this->arParams['MAP_CENTER_LON'] = $this->arParams['MAP_CENTER_LON'] ?? '37.6173';
-        $this->arParams['MAP_ZOOM'] = (int)$this->arParams['MAP_ZOOM'] ?? 10;
-        $this->arParams['MAP_HEIGHT'] = $this->arParams['MAP_HEIGHT'] ?? '600px';
-        $this->arParams['IBLOCK_ID'] = (int)$this->arParams['IBLOCK_ID'] ?? 0;
-        $this->arParams['LIMIT'] = (int)$this->arParams['LIMIT'] ?? 50;
-        $this->arParams['JSON_URL'] = $this->arParams['JSON_URL'] ?? '';
-        $this->arParams['FILE_PATH'] = $this->arParams['FILE_PATH'] ?? '';
-        $this->arParams['LAT_FIELD'] = $this->arParams['LAT_FIELD'] ?? 'lat';
-        $this->arParams['LON_FIELD'] = $this->arParams['LON_FIELD'] ?? 'lon';
-        $this->arParams['NAME_FIELD'] = $this->arParams['NAME_FIELD'] ?? 'name';
+        // Параметры по умо��чанию
+        $this->arParams['MAP_TYPE'] = !empty($this->arParams['MAP_TYPE']) ? $this->arParams['MAP_TYPE'] : 'simple';
+        $this->arParams['API_KEY'] = !empty($this->arParams['API_KEY']) ? $this->arParams['API_KEY'] : '';
+        $this->arParams['MAP_CENTER_LAT'] = !empty($this->arParams['MAP_CENTER_LAT']) ? $this->arParams['MAP_CENTER_LAT'] : '55.7558';
+        $this->arParams['MAP_CENTER_LON'] = !empty($this->arParams['MAP_CENTER_LON']) ? $this->arParams['MAP_CENTER_LON'] : '37.6173';
+        $this->arParams['MAP_ZOOM'] = !empty($this->arParams['MAP_ZOOM']) ? (int)$this->arParams['MAP_ZOOM'] : 10;
+        $this->arParams['MAP_HEIGHT'] = !empty($this->arParams['MAP_HEIGHT']) ? $this->arParams['MAP_HEIGHT'] : '600px';
+        $this->arParams['IBLOCK_ID'] = !empty($this->arParams['IBLOCK_ID']) ? (int)$this->arParams['IBLOCK_ID'] : 0;
+        $this->arParams['LIMIT'] = !empty($this->arParams['LIMIT']) ? (int)$this->arParams['LIMIT'] : 50;
+        $this->arParams['JSON_URL'] = !empty($this->arParams['JSON_URL']) ? $this->arParams['JSON_URL'] : '';
+        $this->arParams['FILE_PATH'] = !empty($this->arParams['FILE_PATH']) ? $this->arParams['FILE_PATH'] : '';
+        $this->arParams['LAT_FIELD'] = !empty($this->arParams['LAT_FIELD']) ? $this->arParams['LAT_FIELD'] : 'lat';
+        $this->arParams['LON_FIELD'] = !empty($this->arParams['LON_FIELD']) ? $this->arParams['LON_FIELD'] : 'lon';
+        $this->arParams['NAME_FIELD'] = !empty($this->arParams['NAME_FIELD']) ? $this->arParams['NAME_FIELD'] : 'name';
 
         $markers = array();
 
@@ -114,13 +114,13 @@ class MapYandexComponent extends CBitrixComponent
         foreach ($data as $item) {
             if (is_array($item) && isset($item[$latField]) && isset($item[$lonField])) {
                 $markers[] = array(
-                    'id' => $item['id'] ?? uniqid(),
-                    'name' => $item[$nameField] ?? 'Маркер',
+                    'id' => isset($item['id']) ? $item['id'] : uniqid(),
+                    'name' => isset($item[$nameField]) ? $item[$nameField] : 'Маркер',
                     'lat' => floatval($item[$latField]),
                     'lon' => floatval($item[$lonField]),
-                    'text' => $item['description'] ?? $item['text'] ?? '',
-                    'image' => $item['image'] ?? '',
-                    'url' => $item['url'] ?? '',
+                    'text' => isset($item['description']) ? $item['description'] : (isset($item['text']) ? $item['text'] : ''),
+                    'image' => isset($item['image']) ? $item['image'] : '',
+                    'url' => isset($item['url']) ? $item['url'] : '',
                 );
             }
         }
@@ -153,13 +153,13 @@ class MapYandexComponent extends CBitrixComponent
 
             if (isset($item[$latField]) && isset($item[$lonField])) {
                 $markers[] = array(
-                    'id' => $item['id'] ?? uniqid(),
-                    'name' => $item[$nameField] ?? 'Маркер',
+                    'id' => isset($item['id']) ? $item['id'] : uniqid(),
+                    'name' => isset($item[$nameField]) ? $item[$nameField] : 'Маркер',
                     'lat' => floatval($item[$latField]),
                     'lon' => floatval($item[$lonField]),
-                    'text' => $item['description'] ?? $item['text'] ?? '',
-                    'image' => $item['image'] ?? '',
-                    'url' => $item['url'] ?? '',
+                    'text' => isset($item['description']) ? $item['description'] : (isset($item['text']) ? $item['text'] : ''),
+                    'image' => isset($item['image']) ? $item['image'] : '',
+                    'url' => isset($item['url']) ? $item['url'] : '',
                 );
             }
         }
@@ -193,13 +193,13 @@ class MapYandexComponent extends CBitrixComponent
 
             if ($lat && $lon) {
                 $markers[] = array(
-                    'id' => (string)$marker->id ?? uniqid(),
-                    'name' => (string)$marker->{$nameField} ?? 'Маркер',
+                    'id' => isset($marker->id) ? (string)$marker->id : uniqid(),
+                    'name' => isset($marker->{$nameField}) ? (string)$marker->{$nameField} : 'Маркер',
                     'lat' => $lat,
                     'lon' => $lon,
-                    'text' => (string)$marker->description ?? (string)$marker->text ?? '',
-                    'image' => (string)$marker->image ?? '',
-                    'url' => (string)$marker->url ?? '',
+                    'text' => isset($marker->description) ? (string)$marker->description : (isset($marker->text) ? (string)$marker->text : ''),
+                    'image' => isset($marker->image) ? (string)$marker->image : '',
+                    'url' => isset($marker->url) ? (string)$marker->url : '',
                 );
             }
         }
@@ -255,7 +255,7 @@ class MapYandexComponent extends CBitrixComponent
                     'name' => $arFields['NAME'],
                     'lat' => floatval($lat),
                     'lon' => floatval($lon),
-                    'text' => $arFields['PREVIEW_TEXT'] ?? '',
+                    'text' => isset($arFields['PREVIEW_TEXT']) ? $arFields['PREVIEW_TEXT'] : '',
                     'image' => $picture,
                     'url' => $arFields['DETAIL_PAGE_URL'],
                 );
@@ -288,13 +288,13 @@ class MapYandexComponent extends CBitrixComponent
             foreach ($data as $item) {
                 if (isset($item[$latField]) && isset($item[$lonField])) {
                     $markers[] = array(
-                        'id' => $item['id'] ?? uniqid(),
-                        'name' => $item[$nameField] ?? 'Маркер',
+                        'id' => isset($item['id']) ? $item['id'] : uniqid(),
+                        'name' => isset($item[$nameField]) ? $item[$nameField] : 'Маркер',
                         'lat' => floatval($item[$latField]),
                         'lon' => floatval($item[$lonField]),
-                        'text' => $item['description'] ?? $item['text'] ?? '',
-                        'image' => $item['image'] ?? '',
-                        'url' => $item['url'] ?? '',
+                        'text' => isset($item['description']) ? $item['description'] : (isset($item['text']) ? $item['text'] : ''),
+                        'image' => isset($item['image']) ? $item['image'] : '',
+                        'url' => isset($item['url']) ? $item['url'] : '',
                     );
                 }
             }
