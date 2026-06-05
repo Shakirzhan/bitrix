@@ -70,9 +70,19 @@ $componentId = $this->getComponent()->getName() . '_' . rand(10000, 99999);
         const mapId = '<?php echo addslashes($componentId); ?>';
         const mapContainer = 'map-' + mapId;
         const markers = <?php echo isset($this->arResult['MARKERS']) && !empty($this->arResult['MARKERS']) ? $this->arResult['MARKERS'] : '[]'; ?>;
-        const mapCenter = [<?php echo $this->arResult['MAP_CENTER']['lat']; ?>, <?php echo $this->arResult['MAP_CENTER']['lon']; ?>];
-        const mapZoom = <?php echo $this->arResult['MAP_ZOOM']; ?>;
+        const mapCenterLat = parseFloat(<?php echo isset($this->arResult['MAP_CENTER']['lat']) ? (float)$this->arResult['MAP_CENTER']['lat'] : 55.7558; ?>);
+        const mapCenterLon = parseFloat(<?php echo isset($this->arResult['MAP_CENTER']['lon']) ? (float)$this->arResult['MAP_CENTER']['lon'] : 37.6173; ?>);
+        const mapZoom = parseInt(<?php echo isset($this->arResult['MAP_ZOOM']) ? (int)$this->arResult['MAP_ZOOM'] : 10; ?>);
         const apiKey = '<?php echo addslashes($this->arResult['API_KEY']); ?>';
+
+        console.log('Map Init:', {
+            mapId: mapId,
+            mapCenterLat: mapCenterLat,
+            mapCenterLon: mapCenterLon,
+            mapZoom: mapZoom,
+            markersCount: markers.length,
+            apiKey: apiKey ? 'Set' : 'Not set'
+        });
 
         // Функция для инициализации карты Яндекса
         function initYandexMap() {
@@ -84,7 +94,7 @@ $componentId = $this->getComponent()->getName() . '_' . rand(10000, 99999);
 
             ymaps.ready(function() {
                 const map = new ymaps.Map(mapContainer, {
-                    center: mapCenter,
+                    center: [mapCenterLat, mapCenterLon],
                     zoom: mapZoom,
                     controls: ['zoomControl', 'fullscreenControl']
                 });
@@ -146,17 +156,20 @@ $componentId = $this->getComponent()->getName() . '_' . rand(10000, 99999);
                 '"': '&quot;',
                 "'": '&#039;'
             };
-            return text.replace(/[&<>"']/g, function(m) {
+            return String(text).replace(/[&<>"']/g, function(m) {
                 return map[m];
             });
         }
 
         // Загружаем API Яндекс.Карт
-        if (apiKey) {
+        if (apiKey && apiKey.length > 0) {
             const script = document.createElement('script');
             script.src = 'https://api-maps.yandex.ru/2.1/?apikey=' + apiKey + '&lang=ru_RU';
             script.onload = initYandexMap;
-            script.onerror = loadOpenStreetMap;
+            script.onerror = function() {
+                console.warn('Ошибка загрузки Яндекс.Карт, используется OpenStreetMap');
+                loadOpenStreetMap();
+            };
             document.head.appendChild(script);
         } else {
             console.warn('API ключ Яндекс.Карт не указан, используется OpenStreetMap');
@@ -172,31 +185,45 @@ $componentId = $this->getComponent()->getName() . '_' . rand(10000, 99999);
             const leafletJs = document.createElement('script');
             leafletJs.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';
             leafletJs.onload = function() {
-                const map = L.map(mapContainer).setView(
-                    [mapCenter[0], mapCenter[1]],
-                    mapZoom
-                );
+                console.log('Leaflet loaded. Initializing map with:', {
+                    lat: mapCenterLat,
+                    lon: mapCenterLon,
+                    zoom: mapZoom
+                });
 
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap contributors',
-                    maxZoom: 19
-                }).addTo(map);
+                try {
+                    const map = L.map(mapContainer).setView(
+                        [mapCenterLat, mapCenterLon],
+                        mapZoom
+                    );
 
-                if (markers && markers.length > 0) {
-                    markers.forEach(function(marker) {
-                        const popup = createBalloonContent(marker);
-                        L.marker([marker.lat, marker.lon])
-                            .addTo(map)
-                            .bindPopup(popup);
-                    });
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '© OpenStreetMap contributors',
+                        maxZoom: 19
+                    }).addTo(map);
 
-                    if (markers.length > 1) {
-                        const group = new L.featureGroup(
-                            markers.map(m => L.marker([m.lat, m.lon]))
-                        );
-                        map.fitBounds(group.getBounds());
+                    if (markers && markers.length > 0) {
+                        const markerGroup = [];
+                        
+                        markers.forEach(function(marker) {
+                            const popup = createBalloonContent(marker);
+                            const m = L.marker([marker.lat, marker.lon])
+                                .addTo(map)
+                                .bindPopup(popup);
+                            markerGroup.push(m);
+                        });
+
+                        if (markerGroup.length > 1) {
+                            const group = new L.featureGroup(markerGroup);
+                            map.fitBounds(group.getBounds());
+                        }
                     }
+                } catch (e) {
+                    console.error('Ошибка при инициализации карты:', e);
                 }
+            };
+            leafletJs.onerror = function() {
+                console.error('Ошибка загрузки Leaflet');
             };
             document.head.appendChild(leafletJs);
         }
