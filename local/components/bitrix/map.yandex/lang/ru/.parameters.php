@@ -13,7 +13,10 @@ $arComponentParameters = array(
             'NAME' => 'Параметры инфоблока',
         ),
         'JSON_SETTINGS' => array(
-            'NAME' => 'Параметры JSON',
+            'NAME' => 'Параметры JSON API',
+        ),
+        'FILE_SETTINGS' => array(
+            'NAME' => 'Параметры файла',
         ),
     ),
     'PARAMETERS' => array(
@@ -29,6 +32,7 @@ $arComponentParameters = array(
             'TYPE' => 'LIST',
             'VALUES' => array(
                 'simple' => 'Просто отображение (пусто)',
+                'file' => 'Из файла (JSON, CSV, XML)',
                 'iblock' => 'Компонент ядра Bitrix (инфоблок)',
                 'json' => 'Из JSON API',
             ),
@@ -81,25 +85,35 @@ $arComponentParameters = array(
             'TYPE' => 'STRING',
             'DEFAULT' => '',
             'PARENT' => 'JSON_SETTINGS',
-            'DESCRIPTION' => 'Используется если MAP_TYPE = "json"',
+            'DESCRIPTION' => 'Используется если MAP_TYPE = "json". Пример: https://example.com/api/markers.json',
         ),
         'LAT_FIELD' => array(
-            'NAME' => 'Поле для широты в JSON',
+            'NAME' => 'Поле для широты',
             'TYPE' => 'STRING',
             'DEFAULT' => 'lat',
             'PARENT' => 'JSON_SETTINGS',
+            'DESCRIPTION' => 'Используется для JSON API и файлов',
         ),
         'LON_FIELD' => array(
-            'NAME' => 'Поле для долготы в JSON',
+            'NAME' => 'Поле для долготы',
             'TYPE' => 'STRING',
             'DEFAULT' => 'lon',
             'PARENT' => 'JSON_SETTINGS',
+            'DESCRIPTION' => 'Используется для JSON API и файлов',
         ),
         'NAME_FIELD' => array(
-            'NAME' => 'Поле для названия в JSON',
+            'NAME' => 'Поле для названия',
             'TYPE' => 'STRING',
             'DEFAULT' => 'name',
             'PARENT' => 'JSON_SETTINGS',
+            'DESCRIPTION' => 'Используется для JSON API и файлов',
+        ),
+        'FILE_PATH' => array(
+            'NAME' => 'Путь к файлу маркеров',
+            'TYPE' => 'STRING',
+            'DEFAULT' => '',
+            'PARENT' => 'FILE_SETTINGS',
+            'DESCRIPTION' => 'Используется если MAP_TYPE = "file". Поддерживаемые форматы: JSON, CSV, XML. Пример: /uploads/markers.json или uploads/markers.csv',
         ),
     ),
 );
