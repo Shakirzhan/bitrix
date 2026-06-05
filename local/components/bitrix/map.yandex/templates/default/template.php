@@ -5,13 +5,14 @@ $componentId = $this->getComponent()->getName() . '_' . rand(10000, 99999);
 ?>
 
 <div class="map-yandex-wrapper" id="<?php echo htmlspecialchars($componentId); ?>">
-    <div id="map-<?php echo htmlspecialchars($componentId); ?>" class="map-yandex" style="width: 100%; height: <?php echo htmlspecialchars($this->arResult['MAP_HEIGHT']); ?>;"></div>
+    <div id="map-<?php echo htmlspecialchars($componentId); ?>" class="map-yandex" style="width: 500px; height: 500px;"></div>
 </div>
 
 <style>
     .map-yandex-wrapper {
         position: relative;
-        width: 100%;
+        width: 500px;
+        height: 500px;
         border-radius: 8px;
         overflow: hidden;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
